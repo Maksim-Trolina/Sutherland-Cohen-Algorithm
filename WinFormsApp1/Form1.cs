@@ -43,12 +43,12 @@ namespace WinFormsApp1
             }
         }
         //Must have
-        int GetCode(Point point, int xMin, int xMax, int yMin, int yMax)
+        int GetCode(PointF point, int xMin, int xMax, int yMin, int yMax)
         {
-            return ((point.X < xMin) ? 1 : 0) << 3 |
-                ((point.X > xMax) ? 1 : 0) << 2 |
-                ((point.Y < yMin) ? 1 : 0) << 1 |
-                ((point.Y > yMax) ? 1 : 0);
+            return ((point.X < xMin) ? 1 : 0) |
+                ((point.X > xMax) ? 1 : 0) << 1 |
+                ((point.Y < yMin) ? 1 : 0) << 3 |
+                ((point.Y > yMax) ? 1 : 0) << 2;
         }
 
         void Repainting(Graphics graphics, int xMax, int yMax, int xMin, int yMin)
@@ -79,11 +79,78 @@ namespace WinFormsApp1
 
             if (firstCode == 0 && secondCode == 0)
                 return Pens.Green;
+            PointF p1 = line.FirstPoint;
+            PointF p2 = line.SecondPoint;
+            bool flag;
+            while((firstCode | secondCode) != 0)
+            {
+                if ((firstCode & secondCode) != 0)
+                    return Pens.Blue;
 
-            if ((firstCode & secondCode) != 0)
-                return Pens.Blue;
+                if(firstCode != 0)
+                {
+                    p1 = Shift(p1, p2, firstCode, xMin, xMax, yMin, yMax, p1, out flag);
+                    firstCode = flag ? 0 : GetCode(p1, xMin, xMax, yMin, yMax);
+                }
+                else
+                {
+                    p2 = Shift(p1, p2, secondCode, xMin, xMax, yMin, yMax, p2, out flag);
+                    secondCode = flag ? 0 : GetCode(p2, xMin, xMax, yMin, yMax);
+                }
+            }
 
             return Pens.Red;
+        }
+
+        PointF Shift(PointF point1, PointF point2, int code, int xMin, int xMax, int yMin, int yMax, PointF source, out bool flag)
+        {
+            float shift;
+            if((code & 1) != 0)
+            {
+                shift = (point1.Y - point2.Y) * (xMin - source.X) / (point1.X - point2.X);
+                if(shift == 0)
+                {
+                    flag = true;
+                    return source;
+                }
+                source.Y += shift;
+                source.X = xMin;
+            }
+            else if((code & 2) != 0)
+            {
+                shift = (point1.Y - point2.Y) * (xMax - source.X) / (point1.X - point2.X);
+                if (shift == 0)
+                {
+                    flag = true;
+                    return source;
+                }
+                source.Y += shift;
+                source.X = xMax;
+            }
+            else if((code & 4) != 0)
+            {
+                shift = (point1.X - point2.X) * (yMin - source.Y) / (point1.Y - point2.Y);
+                if (shift == 0)
+                {
+                    flag = true;
+                    return source;
+                }
+                source.X += shift;
+                source.Y = yMin;
+            } 
+            else if((code & 8) != 0)
+            {
+                shift = (point1.X - point2.X) * (yMax - source.Y) / (point1.Y - point2.Y);
+                if (shift == 0)
+                {
+                    flag = true;
+                    return source;
+                }
+                source.X += shift;
+                source.Y = yMax;
+            }
+            flag = false;
+            return source;
         }
     }
 }

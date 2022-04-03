@@ -8,21 +8,21 @@ namespace WinFormsApp1
 {
     internal struct Line
     {
-        public Point FirstPoint { get; set; }
+        public PointF FirstPoint { get; set; }
 
-        public Point SecondPoint { get; set; }
+        public PointF SecondPoint { get; set; }
         //Must have
         public static Line GetRandomLine(int xMax, int yMax, int xMin, int yMin)
         {
             var random = new Random();
 
-            var firstPoint = new Point
+            var firstPoint = new PointF
             {
                 X = random.Next(xMin, xMax),
                 Y = random.Next(yMin, yMax)
             };
 
-            var secondPoint = new Point
+            var secondPoint = new PointF
             {
                 X = random.Next(xMin, xMax),
                 Y = random.Next(yMin, yMax)
