@@ -13,13 +13,13 @@ namespace WinFormsApp1
             Graphics graphics = pictureBox1.CreateGraphics();
             graphics.Clear(Color.White);
             lines = GetLines();
-            DrawLines(graphics, Color.Red);
+            DrawLines(graphics, Color.Orange);
         }
 
         Line[] GetLines()
         {
-            int xMin = pictureBox1.Location.X;
-            int yMin = pictureBox1.Location.Y;
+            int xMin = 0;
+            int yMin = 0;
             int xMax = pictureBox1.Width + xMin;
             int yMax = pictureBox1.Height + yMin;
             int countLines = (int)numericUpDown3.Value;
@@ -63,11 +63,13 @@ namespace WinFormsApp1
         }
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            int rectangleWidth = (int)numericUpDown1.Value;
-            int rectangleHeight = (int)numericUpDown2.Value;
+            int xMin = e.X;
+            int yMin = e.Y;
+            int xMax = (int)numericUpDown1.Value + xMin;
+            int yMax = (int)numericUpDown2.Value + yMin;
             Graphics graphics = pictureBox1.CreateGraphics();
             graphics.Clear(Color.White);
-            Repainting(graphics, e.X + rectangleWidth, e.Y + rectangleHeight, e.X, e.Y);
+            Repainting(graphics, xMax, yMax, xMin, yMin);
         }
         //Must have
         Pen GetPen(Line line, int xMin, int xMax, int yMin, int yMax)
@@ -78,7 +80,7 @@ namespace WinFormsApp1
             if (firstCode == 0 && secondCode == 0)
                 return Pens.Green;
 
-            if ((firstCode ^ secondCode) == 0)
+            if ((firstCode & secondCode) != 0)
                 return Pens.Blue;
 
             return Pens.Red;
